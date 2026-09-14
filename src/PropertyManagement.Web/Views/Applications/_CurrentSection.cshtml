@@ -1,0 +1,13 @@
+@model ApplicationPageViewModel
+@switch (Model.CurrentSection)
+{
+    case ApplicationSection.ApplicantInformation:
+        <partial name="~/Views/Applications/_ApplicantInformationSection.cshtml" model="Model" />
+        break;
+    case ApplicationSection.ResidenceHistory:
+        @await Component.InvokeAsync("ResidenceHistorySection", new { residences = Model.Residences, completed = Model.ResidenceHistoryCompleted })
+        break;
+    default:
+        <partial name="~/Views/Applications/_SummarySection.cshtml" model="Model" />
+        break;
+}

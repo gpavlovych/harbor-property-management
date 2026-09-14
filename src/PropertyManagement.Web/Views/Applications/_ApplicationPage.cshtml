@@ -1,0 +1,166 @@
+@model ApplicationPageViewModel
+<div id="application-page">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a asp-controller="Applications" asp-action="Index">Applications</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Application #@Model.Id</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <h1 class="h3 mb-0">@Model.UnitLabel</h1>
+                        <partial name="_StatusBadge" model="Model.Status" />
+                    </div>
+                    <div class="text-muted small">
+                        <i class="bi bi-geo-alt me-1"></i>@Model.PropertyAddress
+                        &middot; @Model.UnitType
+                        @if (Model.Bedrooms > 0) { <text>&middot; @Model.Bedrooms bd</text> }
+                        &middot; @Model.MonthlyRent.Money()/mo
+                    </div>
+                    @if (Model.IsManager)
+                    {
+                        <div class="small mt-1"><i class="bi bi-person me-1"></i>Applicant: <strong>@Model.ApplicantName</strong> &lt;@Model.ApplicantEmail&gt;</div>
+                    }
+                    <div class="text-muted small mt-1">
+                        Started @Model.CreatedAt.Local()
+                        @if (Model.SubmittedAt.HasValue) { <text>&middot; Submitted @Model.SubmittedAt.Value.Local()</text> }
+                        @if (Model.ReviewedAt.HasValue) { <text>&middot; Reviewed @Model.ReviewedAt.Value.Local()</text> }
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    @if (Model.CanReview)
+                    {
+                        <button type="button" class="btn btn-primary" data-modal-url="@Url.Action("Create", "Reviews", new { applicationId = Model.Id })">
+                            <i class="bi bi-clipboard-check me-1"></i>Review application
+                        </button>
+                    }
+                    @if (Model.CanWithdraw)
+                    {
+                        <button type="button" class="btn btn-outline-danger" data-modal-url="@Url.Action("Withdraw", "Applications", new { id = Model.Id })">
+                            <i class="bi bi-x-circle me-1"></i>Withdraw
+                        </button>
+                    }
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ReviewComment) && Model.Status is ApplicationStatus.Returned or ApplicationStatus.Denied or ApplicationStatus.Approved)
+            {
+                <div class="alert @(Model.Status == ApplicationStatus.Returned ? "alert-warning" : Model.Status == ApplicationStatus.Approved ? "alert-success" : "alert-danger") mt-3 mb-0">
+                    <strong>@(Model.Status == ApplicationStatus.Returned ? "Returned for correction:" : "Reviewer comment:")</strong> @Model.ReviewComment
+                    @if (Model.Status == ApplicationStatus.Returned && Model.IsOwner)
+                    {
+                        <div class="small mt-1">Update the sections below and submit again from the Summary.</div>
+                    }
+                </div>
+            }
+
+            @if (Model.Lease is not null)
+            {
+                <div class="alert alert-success mt-3 mb-0 d-flex align-items-center gap-3">
+                    <i class="bi bi-file-earmark-check fs-3"></i>
+                    <div>
+                        <strong>Lease issued.</strong> Twelve-month term from @Model.Lease.StartDate.Short() to @Model.Lease.EndDate.Short()
+                        at @Model.Lease.MonthlyRent.Money() per month.
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="@(Model.IsManager ? "col-lg-8" : "col-lg-9")">
+            <partial name="~/Views/Applications/_SectionSteps.cshtml" model="Model" />
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    @if (Model.IsEditable)
+                    {
+                        <form asp-controller="Applications" asp-action="Section" method="post" id="application-form">
+                            <input type="hidden" name="Id" value="@Model.Id" />
+                            <input type="hidden" name="CurrentSection" value="@Model.CurrentSection" />
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+
+                            <partial name="~/Views/Applications/_CurrentSection.cshtml" model="Model" />
+
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                <div>
+                                    @if (Model.CurrentSection != ApplicationSection.ApplicantInformation)
+                                    {
+                                        <button type="submit" name="Command" value="@ApplicationSectionPostModel.Back" class="btn btn-outline-secondary" formnovalidate>
+                                            <i class="bi bi-arrow-left me-1"></i>Back
+                                        </button>
+                                    }
+                                </div>
+                                <div>
+                                    @if (Model.CurrentSection != ApplicationSection.Summary)
+                                    {
+                                        <button type="submit" name="Command" value="@ApplicationSectionPostModel.Continue" class="btn btn-primary">
+                                            Continue<i class="bi bi-arrow-right ms-1"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" name="Command" value="@ApplicationSectionPostModel.Submit" class="btn btn-success" disabled="@(!Model.CanSubmit)">
+                                            <i class="bi bi-send me-1"></i>@(Model.Status == ApplicationStatus.Returned ? "Resubmit application" : "Submit application")
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <partial name="~/Views/Applications/_CurrentSection.cshtml" model="Model" />
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <div>
+                                @if (Model.CurrentSection != ApplicationSection.ApplicantInformation)
+                                {
+                                    <a class="btn btn-outline-secondary" asp-controller="Applications" asp-action="Details" asp-route-id="@Model.Id" asp-route-section="@(Model.CurrentSection - 1)"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                                }
+                            </div>
+                            <div>
+                                @if (Model.CurrentSection != ApplicationSection.Summary)
+                                {
+                                    <a class="btn btn-outline-primary" asp-controller="Applications" asp-action="Details" asp-route-id="@Model.Id" asp-route-section="@(Model.CurrentSection + 1)">Next<i class="bi bi-arrow-right ms-1"></i></a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="@(Model.IsManager ? "col-lg-4" : "col-lg-3")">
+            @if (Model.IsManager)
+            {
+                <partial name="~/Views/Applications/_ManagerNotes.cshtml" model="Model" />
+                @await Component.InvokeAsync("ApplicationHistory", new { applicationId = Model.Id })
+            }
+            else
+            {
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white fw-semibold">Status</div>
+                    <div class="card-body small">
+                        <partial name="_StatusBadge" model="Model.Status" />
+                        <p class="mt-2 mb-0 text-muted">
+                            @switch (Model.Status)
+                            {
+                                case ApplicationStatus.Draft: <text>Complete both sections, then submit from the Summary.</text> break;
+                                case ApplicationStatus.Submitted: <text>Your application is waiting for a property manager to review it.</text> break;
+                                case ApplicationStatus.Returned: <text>The property manager asked for corrections. Update and resubmit.</text> break;
+                                case ApplicationStatus.Approved: <text>Congratulations! Your lease has been issued.</text> break;
+                                case ApplicationStatus.Denied: <text>This application was not approved.</text> break;
+                                case ApplicationStatus.Withdrawn: <text>You withdrew this application.</text> break;
+                            }
+                        </p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

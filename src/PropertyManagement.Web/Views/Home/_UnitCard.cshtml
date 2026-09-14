@@ -1,0 +1,47 @@
+@model UnitCard
+@{
+    var isApplicant = ViewData["IsApplicant"] is true;
+    var isManager = ViewData["IsManager"] is true;
+}
+<div class="card h-100 shadow-sm unit-card">
+    <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h5 class="card-title mb-0">Unit @Model.UnitNumber</h5>
+                <div class="text-muted small">@Model.PropertyName</div>
+            </div>
+            <span class="badge text-bg-light border">@Model.UnitType</span>
+        </div>
+        <div class="text-muted small mb-3"><i class="bi bi-geo-alt me-1"></i>@Model.Address</div>
+        <div class="d-flex justify-content-between align-items-center mt-auto">
+            <span><i class="bi bi-door-open me-1"></i>@(Model.Bedrooms == 0 ? "Studio" : $"{Model.Bedrooms} bd")</span>
+            <span class="fs-5 fw-semibold">@Model.MonthlyRent.Money()<span class="text-muted fs-6 fw-normal">/mo</span></span>
+        </div>
+    </div>
+    <div class="card-footer bg-white border-top-0 pb-3">
+        @if (isApplicant)
+        {
+            if (Model.OpenApplicationId.HasValue)
+            {
+                <a class="btn btn-outline-primary w-100" asp-controller="Applications" asp-action="Details" asp-route-id="@Model.OpenApplicationId">
+                    <i class="bi bi-pencil-square me-1"></i>Continue your application
+                </a>
+            }
+            else
+            {
+                <form asp-controller="Applications" asp-action="Start" method="post">
+                    <input type="hidden" name="unitId" value="@Model.UnitId" />
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-file-earmark-plus me-1"></i>Start application</button>
+                </form>
+            }
+        }
+        else if (isManager)
+        {
+            <span class="text-muted small">Available for applications</span>
+        }
+        else
+        {
+            <a class="btn btn-outline-primary w-100" asp-controller="Account" asp-action="Login" asp-route-returnUrl="/">Log in to apply</a>
+        }
+    </div>
+</div>

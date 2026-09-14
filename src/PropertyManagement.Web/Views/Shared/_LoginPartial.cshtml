@@ -1,0 +1,28 @@
+@using Microsoft.AspNetCore.Identity
+@using PropertyManagement.Infrastructure.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    var user = await UserManager.GetUserAsync(User);
+    var role = User.IsPropertyManager() ? "Property Manager" : "Applicant";
+    <li class="nav-item">
+        <span class="navbar-text me-3">
+            <i class="bi bi-person-circle me-1"></i>@user?.FullName
+            <span class="badge rounded-pill text-bg-secondary ms-1">@role</span>
+        </span>
+    </li>
+    <li class="nav-item">
+        <form class="d-inline" asp-controller="Account" asp-action="Logout" method="post">
+            <button type="submit" class="btn btn-outline-light btn-sm">Log out</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Register">Sign up</a></li>
+    <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Log in</a></li>
+}
+</ul>

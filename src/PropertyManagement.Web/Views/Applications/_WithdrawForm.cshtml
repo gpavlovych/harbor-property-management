@@ -1,0 +1,19 @@
+@model WithdrawViewModel
+<div class="modal-header">
+    <h5 class="modal-title">Withdraw application</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-controller="Applications" asp-action="Withdraw" method="post" data-modal-form>
+    <input type="hidden" asp-for="ApplicationId" />
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <p>Withdrawing is permanent. You can start a new application for the unit later if it is still available.</p>
+        <label asp-for="Comment" class="form-label">Reason (optional)</label>
+        <textarea asp-for="Comment" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Comment" class="text-danger small"></span>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Keep application</button>
+        <button type="submit" class="btn btn-danger">Withdraw</button>
+    </div>
+</form>

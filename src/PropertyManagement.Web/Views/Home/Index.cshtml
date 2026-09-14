@@ -1,0 +1,54 @@
+@model UnitBrowseResult
+@{
+    ViewData["Title"] = "Browse units";
+    var isApplicant = User.Identity?.IsAuthenticated == true && User.IsInRole(Roles.Applicant);
+    var isManager = User.IsPropertyManager();
+}
+
+<div class="p-4 p-md-5 mb-4 rounded-3 hero text-white">
+    <h1 class="display-6 fw-semibold">Find your next home</h1>
+    <p class="lead mb-0">Browse available apartments and apply online in minutes.</p>
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-md-3">
+        <label class="form-label small text-muted" for="PropertyId">Property</label>
+        <select class="form-select" id="PropertyId" name="PropertyId" asp-for="Filter.PropertyId" asp-items="@(new SelectList(Model.Properties, "Id", "Name"))">
+            <option value="">All properties</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small text-muted" for="UnitTypeId">Unit type</label>
+        <select class="form-select" id="UnitTypeId" name="UnitTypeId" asp-for="Filter.UnitTypeId" asp-items="@(new SelectList(Model.UnitTypes, "Id", "Name"))">
+            <option value="">Any type</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small text-muted" for="MinBedrooms">Min bedrooms</label>
+        <input type="number" min="0" class="form-control" id="MinBedrooms" name="MinBedrooms" value="@Model.Filter.MinBedrooms" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label small text-muted" for="MaxRent">Max rent</label>
+        <input type="number" min="0" step="50" class="form-control" id="MaxRent" name="MaxRent" value="@Model.Filter.MaxRent" />
+    </div>
+    <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary flex-grow-1">Filter</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+@if (Model.Units.Count == 0)
+{
+    <div class="text-center text-muted py-5 border rounded">No available units match your filters.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    @foreach (var unit in Model.Units)
+    {
+        <div class="col">
+            <partial name="_UnitCard" model="unit" view-data="@(new ViewDataDictionary(ViewData) { { "IsApplicant", isApplicant }, { "IsManager", isManager } })" />
+        </div>
+    }
+    </div>
+}

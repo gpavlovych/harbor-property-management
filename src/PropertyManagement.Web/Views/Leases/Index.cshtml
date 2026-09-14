@@ -1,0 +1,43 @@
+@model List<LeaseItem>
+@{
+    ViewData["Title"] = "Leases";
+    var isManager = User.IsPropertyManager();
+}
+<h1 class="h3 mb-3">@(isManager ? "Leases" : "My leases")</h1>
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    @if (isManager) { <th>Tenant</th> }
+                    <th>Property / unit</th>
+                    <th>Term</th>
+                    <th class="text-end">Monthly rent</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="6" class="text-center text-muted py-4">No leases yet.</td></tr>
+            }
+            @foreach (var l in Model)
+            {
+                <tr>
+                    @if (isManager) { <td class="fw-semibold">@l.TenantName</td> }
+                    <td>@l.PropertyName <span class="text-muted">· Unit @l.UnitNumber</span></td>
+                    <td class="text-nowrap">@l.StartDate.Short() – @l.EndDate.Short()</td>
+                    <td class="text-end">@l.MonthlyRent.Money()</td>
+                    <td>
+                        @if (l.IsActive) { <span class="badge text-bg-success">Active</span> }
+                        else if (l.StartDate > DateOnly.FromDateTime(DateTime.Today)) { <span class="badge text-bg-info">Upcoming</span> }
+                        else { <span class="badge text-bg-secondary">Ended</span> }
+                    </td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" asp-controller="Applications" asp-action="Details" asp-route-id="@l.ApplicationId">Application</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

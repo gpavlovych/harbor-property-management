@@ -1,0 +1,103 @@
+@model ApplicationListResult
+@{
+    ViewData["Title"] = "Applications";
+    var isManager = User.IsPropertyManager();
+    var f = Model.Filter;
+
+    string SortUrl(ApplicationSort sort) =>
+        Url.Action("Index", new { f.Status, f.PropertyId, Sort = sort, Desc = f.Sort == sort && !f.Desc, Page = 1 })!;
+    string SortIcon(ApplicationSort sort) =>
+        f.Sort != sort ? "bi-arrow-down-up text-muted" : (f.Desc ? "bi-sort-down" : "bi-sort-up");
+    string PageUrl(int page) => Url.Action("Index", new { f.Status, f.PropertyId, f.Sort, f.Desc, Page = page })!;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">@(isManager ? "All applications" : "My applications")</h1>
+    @if (!isManager)
+    {
+        <a class="btn btn-primary" asp-controller="Home" asp-action="Index"><i class="bi bi-search me-1"></i>Browse units</a>
+    }
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <input type="hidden" name="Sort" value="@f.Sort" />
+    <input type="hidden" name="Desc" value="@f.Desc.ToString().ToLowerInvariant()" />
+    <div class="col-md-3">
+        <label class="form-label small text-muted" for="Status">Status</label>
+        <select class="form-select" id="Status" name="Status" asp-for="Filter.Status" asp-items="Html.GetEnumSelectList<ApplicationStatus>()">
+            <option value="">All statuses</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label small text-muted" for="PropertyId">Property</label>
+        <select class="form-select" id="PropertyId" name="PropertyId" asp-for="Filter.PropertyId" asp-items="@(new SelectList(Model.Properties, "Id", "Name"))">
+            <option value="">All properties</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    @if (isManager)
+                    {
+                        <th><a class="text-decoration-none text-body" href="@SortUrl(ApplicationSort.Applicant)">Applicant <i class="bi @SortIcon(ApplicationSort.Applicant)"></i></a></th>
+                    }
+                    <th><a class="text-decoration-none text-body" href="@SortUrl(ApplicationSort.Property)">Property / unit <i class="bi @SortIcon(ApplicationSort.Property)"></i></a></th>
+                    <th><a class="text-decoration-none text-body" href="@SortUrl(ApplicationSort.Status)">Status <i class="bi @SortIcon(ApplicationSort.Status)"></i></a></th>
+                    <th>Submitted</th>
+                    <th><a class="text-decoration-none text-body" href="@SortUrl(ApplicationSort.Updated)">Last updated <i class="bi @SortIcon(ApplicationSort.Updated)"></i></a></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (Model.Results.Items.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">No applications match the current filters.</td></tr>
+            }
+            @foreach (var a in Model.Results.Items)
+            {
+                <tr>
+                    <td class="text-muted">@a.Id</td>
+                    @if (isManager)
+                    {
+                        <td class="fw-semibold">@a.ApplicantName</td>
+                    }
+                    <td>@a.PropertyName <span class="text-muted">· Unit @a.UnitNumber</span></td>
+                    <td><partial name="_StatusBadge" model="a.Status" /></td>
+                    <td class="text-muted small">@(a.SubmittedAt?.Local() ?? "—")</td>
+                    <td class="text-muted small">@a.UpdatedAt.Local()</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm @(isManager && a.Status == ApplicationStatus.Submitted ? "btn-primary" : "btn-outline-primary")" asp-action="Details" asp-route-id="@a.Id">
+                            @(isManager && a.Status == ApplicationStatus.Submitted ? "Review" : "Open")
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.Results.TotalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <span class="text-muted small">@Model.Results.TotalCount application(s) · page @Model.Results.Page of @Model.Results.TotalPages</span>
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(Model.Results.HasPrevious ? "" : "disabled")"><a class="page-link" href="@PageUrl(Model.Results.Page - 1)">Previous</a></li>
+                    @for (var p = 1; p <= Model.Results.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.Results.Page ? "active" : "")"><a class="page-link" href="@PageUrl(p)">@p</a></li>
+                    }
+                    <li class="page-item @(Model.Results.HasNext ? "" : "disabled")"><a class="page-link" href="@PageUrl(Model.Results.Page + 1)">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

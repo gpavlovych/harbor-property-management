@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PropertyManagement.Application/PropertyManagement.Application.csproj" />
+    <Project Path="src/PropertyManagement.Domain/PropertyManagement.Domain.csproj" />
+    <Project Path="src/PropertyManagement.Infrastructure/PropertyManagement.Infrastructure.csproj" />
+    <Project Path="src/PropertyManagement.Web/PropertyManagement.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PropertyManagement.Application.Tests/PropertyManagement.Application.Tests.csproj" />
+    <Project Path="tests/PropertyManagement.Domain.Tests/PropertyManagement.Domain.Tests.csproj" />
+    <Project Path="tests/PropertyManagement.Web.Tests/PropertyManagement.Web.Tests.csproj" />
+  </Folder>
+</Solution>

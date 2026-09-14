@@ -1,0 +1,20 @@
+# Build output
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.swp
+
+# Test results
+TestResults/
+*.trx
+
+# Local secrets and databases
+appsettings.*.local.json
+*.mdf
+*.ldf
+
+# Tooling
+.claude/launch.json

@@ -1,0 +1,41 @@
+@model List<PropertySummary>
+<div id="property-list">
+@if (Model.Count == 0)
+{
+    <div class="text-muted border rounded p-5 text-center">No properties yet. Add your first property to get started.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th class="text-end">Units</th>
+                        <th class="text-end">Available</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var p in Model)
+                {
+                    <tr>
+                        <td><a class="fw-semibold text-decoration-none" asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+                        <td class="text-muted">@p.Address</td>
+                        <td class="text-end">@p.UnitCount</td>
+                        <td class="text-end">@p.AvailableUnitCount</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-outline-primary btn-sm" asp-action="Details" asp-route-id="@p.Id">Units</a>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-modal-url="@Url.Action("Edit", new { id = p.Id })" title="Edit property"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-modal-url="@Url.Action("Delete", new { id = p.Id })" title="Remove property"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+</div>

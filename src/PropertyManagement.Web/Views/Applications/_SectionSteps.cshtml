@@ -1,0 +1,21 @@
+@model ApplicationPageViewModel
+@{
+    var steps = new[]
+    {
+        (Section: ApplicationSection.ApplicantInformation, Done: Model.ApplicantInformationCompleted),
+        (Section: ApplicationSection.ResidenceHistory, Done: Model.ResidenceHistoryCompleted),
+        (Section: ApplicationSection.Summary, Done: Model.Status != ApplicationStatus.Draft && Model.Status != ApplicationStatus.Returned)
+    };
+}
+<ol class="steps mb-3">
+@foreach (var step in steps)
+{
+    var isCurrent = step.Section == Model.CurrentSection;
+    <li class="step @(isCurrent ? "current" : "") @(step.Done ? "done" : "")">
+        <a asp-controller="Applications" asp-action="Details" asp-route-id="@Model.Id" asp-route-section="@step.Section" class="text-decoration-none">
+            <span class="step-index">@((int)step.Section)</span>
+            <span class="step-title">@step.Section.Title()</span>
+        </a>
+    </li>
+}
+</ol>

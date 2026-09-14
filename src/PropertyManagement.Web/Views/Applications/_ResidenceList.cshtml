@@ -1,0 +1,49 @@
+@model ResidenceList
+<div id="residence-list">
+    @if (Model.IsEditable)
+    {
+        <div class="d-flex justify-content-end mb-2">
+            <button type="button" class="btn btn-outline-primary btn-sm" data-modal-url="@Url.Action("Create", "Residences", new { applicationId = Model.ApplicationId })">
+                <i class="bi bi-plus-lg me-1"></i>Add residence
+            </button>
+        </div>
+    }
+    @if (Model.Residences.Count == 0)
+    {
+        <div class="text-muted border rounded p-4 text-center">No prior residences have been added.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Address</th>
+                        <th>Landlord</th>
+                        <th>Moved in</th>
+                        <th>Moved out</th>
+                        @if (Model.IsEditable) { <th class="text-end"></th> }
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var r in Model.Residences)
+                {
+                    <tr>
+                        <td>@r.Address</td>
+                        <td>@r.LandlordName<br /><span class="text-muted small">@r.LandlordPhone</span></td>
+                        <td class="text-nowrap">@r.MoveInDate.Short()</td>
+                        <td class="text-nowrap">@r.MoveOutDate.Short()</td>
+                        @if (Model.IsEditable)
+                        {
+                            <td class="text-end text-nowrap">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-modal-url="@Url.Action("Edit", "Residences", new { applicationId = Model.ApplicationId, id = r.Id })" title="Edit"><i class="bi bi-pencil"></i></button>
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-modal-url="@Url.Action("Delete", "Residences", new { applicationId = Model.ApplicationId, id = r.Id })" title="Remove"><i class="bi bi-trash"></i></button>
+                            </td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,22 @@
+@model ConfirmDeleteViewModel
+<div class="modal-header">
+    <h5 class="modal-title">@Model.Title</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-controller="@Model.Controller" asp-action="@Model.Action" asp-route-id="@Model.Id" method="post" data-modal-form>
+    <input type="hidden" name="mode" value="@Model.Mode" />
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <p class="mb-0">@Model.Message</p>
+        }
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        @if (!string.IsNullOrEmpty(Model.Message))
+        {
+            <button type="submit" class="btn btn-danger">Remove</button>
+        }
+    </div>
+</form>

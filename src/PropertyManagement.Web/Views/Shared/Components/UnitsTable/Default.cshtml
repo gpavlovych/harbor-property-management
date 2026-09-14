@@ -1,0 +1,63 @@
+@model UnitsTableViewModel
+<div id="units-table">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">Units <span class="text-muted fw-normal">(@Model.Units.Count)</span></h5>
+        <button type="button" class="btn btn-primary btn-sm" data-modal-url="@Url.Action("Create", "Units", new { propertyId = Model.PropertyId })">
+            <i class="bi bi-plus-lg me-1"></i>Add unit
+        </button>
+    </div>
+    @if (Model.Units.Count == 0)
+    {
+        <div class="text-muted border rounded p-4 text-center">No units yet. Add the first one.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Unit</th>
+                        <th>Type</th>
+                        <th class="text-end">Bedrooms</th>
+                        <th class="text-end">Monthly rent</th>
+                        <th>Availability</th>
+                        <th class="text-end">Submitted apps</th>
+                        <th class="text-end"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var u in Model.Units)
+                {
+                    <tr>
+                        <td class="fw-semibold">@u.UnitNumber</td>
+                        <td>
+                            @u.UnitType
+                            @if (!u.UnitTypeIsActive)
+                            {
+                                <span class="badge text-bg-secondary ms-1" title="This unit type is inactive and cannot be chosen for other units">inactive type</span>
+                            }
+                        </td>
+                        <td class="text-end">@u.Bedrooms</td>
+                        <td class="text-end">@u.MonthlyRent.Money()</td>
+                        <td>
+                            @if (u.IsAvailable)
+                            {
+                                <span class="badge text-bg-success">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-dark">Leased</span>
+                            }
+                        </td>
+                        <td class="text-end">@u.SubmittedApplicationCount</td>
+                        <td class="text-end text-nowrap">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" data-modal-url="@Url.Action("Edit", "Units", new { id = u.Id })" title="Edit unit"><i class="bi bi-pencil"></i></button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" data-modal-url="@Url.Action("Delete", "Units", new { id = u.Id })" title="Remove unit"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

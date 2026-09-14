@@ -1,0 +1,39 @@
+@model ApplicationPageViewModel
+@{
+    var readOnlyResidences = new ResidenceList { ApplicationId = Model.Id, IsEditable = false, Residences = Model.Residences.Residences };
+}
+<div class="mb-3">
+    <h4 class="mb-1">Summary</h4>
+    <p class="text-muted mb-0">Review everything before submitting.</p>
+</div>
+
+<h6 class="text-uppercase text-muted small fw-semibold mt-4">
+    Applicant Information
+    @if (Model.ApplicantInformationCompleted) { <i class="bi bi-check-circle-fill text-success ms-1"></i> }
+    else { <span class="badge text-bg-warning ms-1">incomplete</span> }
+</h6>
+<partial name="~/Views/Applications/_ApplicantInformationReadOnly.cshtml" model="Model.ApplicantInformation" />
+
+<h6 class="text-uppercase text-muted small fw-semibold mt-4">
+    Residence History
+    @if (Model.ResidenceHistoryCompleted) { <i class="bi bi-check-circle-fill text-success ms-1"></i> }
+    else { <span class="badge text-bg-warning ms-1">incomplete</span> }
+</h6>
+<partial name="~/Views/Applications/_ResidenceList.cshtml" model="readOnlyResidences" />
+
+@if (Model.IsEditable)
+{
+    if (Model.BlockingIssues.Count > 0)
+    {
+        <div class="alert alert-warning mt-4 mb-0">
+            <strong>Before you can submit:</strong>
+            <ul class="mb-0 mt-1">
+                @foreach (var issue in Model.BlockingIssues) { <li>@issue</li> }
+            </ul>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4 mb-0">Everything is complete. Submit your application when you're ready.</div>
+    }
+}

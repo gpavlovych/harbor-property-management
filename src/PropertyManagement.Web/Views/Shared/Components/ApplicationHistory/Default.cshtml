@@ -1,0 +1,31 @@
+@model List<HistoryEntry>
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold"><i class="bi bi-clock-history me-1"></i>History</div>
+    <ul class="list-group list-group-flush">
+    @foreach (var h in Model)
+    {
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    @if (h.FromStatus.HasValue)
+                    {
+                        <partial name="_StatusBadge" model="h.FromStatus.Value" />
+                        <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                    }
+                    <partial name="_StatusBadge" model="h.ToStatus" />
+                </div>
+                <small class="text-muted text-nowrap ms-2">@h.ChangedAt.Local()</small>
+            </div>
+            <div class="small mt-1">by <strong>@h.ChangedBy</strong></div>
+            @if (!string.IsNullOrEmpty(h.Comment))
+            {
+                <div class="small text-muted fst-italic mt-1">&ldquo;@h.Comment&rdquo;</div>
+            }
+        </li>
+    }
+    @if (Model.Count == 0)
+    {
+        <li class="list-group-item text-muted">No history yet.</li>
+    }
+    </ul>
+</div>

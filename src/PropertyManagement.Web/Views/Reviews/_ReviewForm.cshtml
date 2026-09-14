@@ -1,0 +1,46 @@
+@model ReviewViewModel
+<div class="modal-header">
+    <h5 class="modal-title">Review application</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<form asp-controller="Reviews" asp-action="Create" method="post" data-modal-form id="review-form">
+    <input type="hidden" asp-for="ApplicationId" />
+    <input type="hidden" asp-for="ApplicantName" />
+    <input type="hidden" asp-for="UnitLabel" />
+    <div class="modal-body">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <p class="text-muted mb-3"><strong>@Model.ApplicantName</strong> applied for <strong>@Model.UnitLabel</strong>.</p>
+
+        <fieldset class="mb-3">
+            <legend class="form-label fs-6">Outcome</legend>
+            <div class="btn-group w-100" role="group" aria-label="Review outcome">
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Approve" id="outcome-approve" autocomplete="off" />
+                <label class="btn btn-outline-success" for="outcome-approve"><i class="bi bi-check-lg me-1"></i>Approve</label>
+
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Return" id="outcome-return" autocomplete="off" />
+                <label class="btn btn-outline-warning" for="outcome-return"><i class="bi bi-arrow-counterclockwise me-1"></i>Return</label>
+
+                <input type="radio" class="btn-check" asp-for="Outcome" value="@ReviewOutcome.Deny" id="outcome-deny" autocomplete="off" />
+                <label class="btn btn-outline-danger" for="outcome-deny"><i class="bi bi-x-lg me-1"></i>Deny</label>
+            </div>
+            <span asp-validation-for="Outcome" class="text-danger small"></span>
+        </fieldset>
+
+        <div class="mb-3" data-review-lease>
+            <label asp-for="LeaseStartDate" class="form-label"></label>
+            <input asp-for="LeaseStartDate" class="form-control" type="date" />
+            <span asp-validation-for="LeaseStartDate" class="text-danger small"></span>
+            <div class="form-text">Approving issues a twelve-month lease starting on this date.</div>
+        </div>
+
+        <div class="mb-0">
+            <label asp-for="Comment" class="form-label">Comment <span class="text-muted" data-review-comment-hint>(required for Return and Deny)</span></label>
+            <textarea asp-for="Comment" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Comment" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Complete review</button>
+    </div>
+</form>
